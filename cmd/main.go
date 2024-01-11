@@ -2,9 +2,15 @@ package main
 
 import (
 	"Middleware_Project/Tchipify/internal/controllers/songs"
+	"Middleware_Project/Tchipify/internal/controllers/users"
 	"Middleware_Project/Tchipify/internal/helpers"
-	repositories "Middleware_Project/Tchipify/internal/repositories/songs"
-	services "Middleware_Project/Tchipify/internal/services/songs"
+
+	repositoriesU "Middleware_Project/Tchipify/internal/repositories/users"
+	servicesU "Middleware_Project/Tchipify/internal/services/users"
+
+	repositoriesS "Middleware_Project/Tchipify/internal/repositories/songs"
+	servicesS "Middleware_Project/Tchipify/internal/services/songs"
+
 	"log"
 	"net/http"
 
@@ -20,20 +26,22 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialisation du repository songsRepository
-	songsRepository := &repositories.SongsRepository{DB: db}
+	//USERS
+	usersRepository := &repositoriesU.UsersRepository{DB: db}
+	usersService := &servicesU.UsersService{Repo: usersRepository}
+	usersContext := users.NewContext(db, usersService)
 
-	// Initialisation du service songsService
-	songsService := &services.SongsService{Repo: songsRepository}
-
-	// Création du contexte songsContext
+	//SONGS
+	songsRepository := &repositoriesS.SongsRepository{DB: db}
+	songsService := &servicesS.SongsService{Repo: songsRepository}
 	songsContext := songs.NewContext(db, songsService)
 
 	// Configuration du routeur
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	// Configuration des routes pour le contexte songsContext
+	// Configuration des routes
+	usersContext.SetRoutes(r)
 	songsContext.SetRoutes(r)
 
 	// Démarrage du serveur web

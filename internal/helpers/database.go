@@ -22,8 +22,18 @@ func InitDatabase() (*sql.DB, error) {
 
 //initialisation des tables
 func InitTables(db *sql.DB) error {
+	// Users
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        username TEXT UNIQUE,
+        email TEXT UNIQUE
+    )`)
+	if err != nil {
+		return err
+	}
+
 	//Songs
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS songs (
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS songs (
 		id INTEGER PRIMARY KEY,
 		title TEXT,
 		author TEXT
@@ -31,5 +41,6 @@ func InitTables(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
